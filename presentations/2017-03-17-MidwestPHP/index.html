@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Principles of Unit Testing</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/dbridge.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+<style>
+.reveal h1 {
+  font-size: 2.5em;
+}
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+.flex-container > div {
+  flex-grow: 2;
+  flex: 2 50%;
+}
+</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- SECTION 1: Intro -->
+        <section>
+
+          <section>
+            <h1>Principles of Unit Testing</h1>
+            <div class="flex-container">
+              <div>
+                <p>by Joseph D. Purcell</p>
+              </div>
+              <div>
+                <p>at Midwest PHP</p>
+              </div>
+              <div>
+                <small><a href="https://twitter.com/josephdpurcell">@josephdpurcell</a></small>
+              </div>
+              <div>
+                <small>March 17, 2017</small>
+              </div>
+            </div>
+          </section>
+
+        </section>
+
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        history: true,
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+    <aside class="db-logo-footer">
+      <a href="http://www.dbridgesolutions.com/">
+        <img src="media/images/db.png">
+      </a>
+    </aside>
+  </body>
+</html>
