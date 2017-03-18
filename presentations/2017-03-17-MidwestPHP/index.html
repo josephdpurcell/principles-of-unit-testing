@@ -307,7 +307,7 @@ Outline:
             <b>A Unit With A Side Effect</b>
             <pre><code class="php">
   function increment(Product $product) {
-    $product->favorite_count = $product->favorite_amount + 1;
+    $product->favorite_count = $product->favorite_count + 1;
     // Write value to database.
     $product->save();
     return $product;
