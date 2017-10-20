@@ -43,6 +43,17 @@
 .reveal .slides section mark {
   background: #fff47e;
 }
+.reveal .slides section mark.visible,
+.reveal .slides section mark.visible .hljs-title,
+.reveal .slides section mark.visible .hljs-name,
+.reveal .slides section mark.visible .hljs-selector-id,
+.reveal .slides section mark.visible .hljs-selector-class,
+.reveal .slides section mark.visible .hljs-section,
+.reveal .slides section mark.visible .hljs-type,
+.reveal .slides section mark.visible .hljs-string,
+.reveal .slides section mark.visible .hljs-keyword {
+  color: #333;
+}
 </style>
   </head>
   <body>
@@ -114,7 +125,6 @@ Outline:
           </section>
 
           <section>
-          <!-- @todo should this be an image of a bridge? testing structural integirty of a bridge -->
             <img src="assets/mythical-man-month-tar-pit.jpg" style="border:none">
             <small><em>"Tar Pit" in Mythical Man Month by Fred Brooks</em></small>
             <aside class="notes">
@@ -215,8 +225,8 @@ and an important symbol for the 5 sections
           <section>
             <p style="padding-left:3em;text-align:left">A unit is...</p>
             <ul>
-              <li>a function (e.g. <code>t</code>)</li>
-              <li>a method on a class (e.g. <code>__construct</code>)</li>
+              <li>a function (e.g. <code>t()</code>)</li>
+              <li>a method on a class (e.g. <code>function build()</code>)</li>
               <li>a script (.e.g <code>update.php</code>)</li>
             </ul>
             <p class="fragment" style="padding-left:3em;text-align:left">...<b>one thing</b></p>
@@ -225,6 +235,34 @@ and an important symbol for the 5 sections
               </ul>
             </aside>
           </section>
+
+          <section>
+            <h3>Example</h3>
+            <b>A Unit</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;function <mark class="fragment">increment</mark>($a) {
+    return $a + 1;
+  }
+            </code></pre>
+
+            <b>A Test</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;use PHPUnit\Framework\TestCase;
+
+  class IncrementTest extends TestCase {
+    public function testIncrement() {
+      $result = increment(1);
+
+      <mark class="fragment">$this->assertEquals(2, $result);</mark>
+    }
+  }
+            </code></pre>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
 
 <!--
 @todo comment on the various tools?
@@ -236,17 +274,23 @@ and an important symbol for the 5 sections
 400 functional test classes (300 browser test + 100 web test)
 -->
           <section>
-            <h3>Consider three levels of testing:</h3>
+            <h3>Consider levels of testing</h3>
             <ol>
-              <li>Solitary Unit Testing (e.g. UnitTestCase)</li>
-              <li>Sociable Unit Testing (e.g. KernelTestBase)</li>
-              <li>Functional Testing (e.g. WebTestBase)</li>
+              <li class="fragment">Solitary Unit Testing (e.g. UnitTestCase)</li>
+              <li class="fragment">Sociable Unit Testing (e.g. KernelTestBase)</li>
+              <li class="fragment">Functional Testing (e.g. WebTestBase)</li>
             </ol>
             <br>
             <br>
-            <p><em>Point of confusion: these can all be written in PHPUnit.</em></p>
+            <p class="fragment"><em>Point of confusion: these can all be written in PHPUnit.</em></p>
             <aside class="notes">
             </aside>
+          </section>
+
+          <section>
+            <h3>This is not a unit test.</h3>
+            <img src="assets/train-testing-bridge.jpg">
+            <small><em>"Man of Faith", photo from <a href="https://www.popsci.com/scitech/article/2008-05/indestructable-bridge">Popular Science</a></em></small>
           </section>
 
         </section>
@@ -290,33 +334,6 @@ Similarly, a great test double makes great code when (a) the double looks like t
                 <li>Caitlin Dechelle martial arts age 6</li>
                 <li>You can't tell the difference!</li>
                 <li>Your actual live data isn't affected</li>
-              </ul>
-            </aside>
-          </section>
-
-          <section>
-            <h3>Example</h3>
-            <b>A Unit</b>
-            <pre><code class="php">
-  function increment($a) {
-    return $a + 1;
-  }
-            </code></pre>
-
-            <b>A Test</b>
-            <pre><code class="php">
-  use PHPUnit\Framework\TestCase;
-
-  class IncrementTest extends TestCase {
-    public function testIncrement() {
-      $result = increment(1);
-
-      $this->assertEquals(2, $result);
-    }
-  }
-            </code></pre>
-            <aside class="notes">
-              <ul>
               </ul>
             </aside>
           </section>
@@ -400,15 +417,16 @@ Similarly, a great test double makes great code when (a) the double looks like t
 
           <section>
             <h3>Dummy</h3>
-            <pre><code class="php" style="width:60em;margin-left:-3em">
-  $token = $this->getMock('Symfony\Component\Security\Core\Authentication\Token\TokenInterface');
-  $object = new \stdClass();
+            <pre><code class="php" style="width:60em;margin-left:-3em" data-trim data-noescape>
+&nbsp;&nbsp;<mark class="fragment">$token_dummy</mark> = $this->getMock('Symfony\Component\Security\Core\Authentication\Token\TokenInterface');
+  <mark class="fragment">$object_dummy</mark> = new \stdClass();
 
   $voter = new Voter();
 
-  $this->assertEquals(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $object, ['CREATE']));
+  $this->assertEquals(VoterInterface::ACCESS_GRANTED, $voter->vote(<mark class="fragment">$token_dummy, $object_dummy,</mark> ['CREATE']));
             </code></pre>
-            <p style="font-size:80%" class="fragment">... or just use <code class="php">null</code>?</p>
+            <p style="font-size:80%">A dummy is never called, it has no state.</li>
+            <p style="font-size:80%" class="fragment">... just use <code class="php">NULL</code>?</p>
             <aside class="notes">
               <ul>
                 <li>Dummy is for "utility" value</li>
@@ -419,14 +437,15 @@ Similarly, a great test double makes great code when (a) the double looks like t
 
           <section>
             <h3>Fake</h3>
-            <pre><code class="php">
-  $file = new FakeFile($path);
-  $response = new BinaryFileResponse($file, 200);
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;<mark class="fragment">$file_fake</mark> = new FakeFile($path);
+  $response = new BinaryFileResponse(<mark class="fragment">$file_fake</mark>, 200);
 
   $response->prepare();
 
   $this->assertEquals($path, $response->headers->get('X-Accel-Redirect'));
             </code></pre>
+            <p style="font-size:80%">A concrete class that fakes another concrete class.</li>
             <aside class="notes">
               <ul>
                 <li>Fake reduces complexity</li>
@@ -435,15 +454,19 @@ Similarly, a great test double makes great code when (a) the double looks like t
             </aside>
           </section>
 
+<!--
+@todo do you need expects?
+  $authorization_checker->expects($this->once())->method('isGranted')->willReturn(true);
+-->
           <section>
             <h3>Stub</h3>
-            <pre><code class="php" style="width:60em;margin-left:-3em">
-  $authorizationChecker = $this->getMock('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface');
-  $authorizationChecker->expects($this->once())->method('isGranted')->willReturn(true);
+            <pre><code class="php" style="width:60em;margin-left:-3em" data-trim data-noescape>
+&nbsp;&nbsp;$authorization_checker = $this->getMock('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface');
+  $authorization_checker-><mark class="fragment">method('isGranted')</mark>-><mark class="fragment">willReturn(true)</mark>;
 
-  $controller = new TestController($authorizationChecker);
+  $controller = new TestController($authorization_checker);
 
-  $this->assertTrue($controller->isGranted('foo'));
+  $this-><mark class="fragment">assertTrue</mark>($controller->isGranted('foo'));
             </code></pre>
             <p style="font-size:80%">Like a dummy, but is called and returns values.</li>
             <aside class="notes">
@@ -454,14 +477,14 @@ Similarly, a great test double makes great code when (a) the double looks like t
 
           <section>
             <h3>Spy</h3>
-            <pre><code class="php">
-  $user_spy = $this->prophesize(User::class);
-  $profile = new Profile($user_spy->reveal());
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;<mark class="fragment">$user_spy</mark> = $this->prophesize(User::class);
+  $profile = new Profile(<mark class="fragment">$user_spy->reveal()</mark>);
 
   $profile->getFullName();
 
-  $user_spy->getFirstName()->shouldHaveBeenCalled();
-  $user_spy->getLastName()->shouldHaveBeenCalled();
+  $user_spy->getFirstName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
+  $user_spy->getLastName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
             </code></pre>
 <!--
 @todo verify it is shouldHaveBeenCalled
@@ -478,13 +501,13 @@ Similarly, a great test double makes great code when (a) the double looks like t
 
           <section>
             <h3>Mock</h3>
-            <pre><code class="php">
-  $user_mock = $this->getMockBuilder('User')->getMock();
-  $user_mock->expects($this->once())->method('getFirstName')->willReturn('First');
-  $user_mock->expects($this->once())->method('getLastName')->willReturn('Last');
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;$user_mock = $this->getMockBuilder('User')->getMock();
+  $user_mock-><mark class="fragment">expects($this->once())</mark>->method('getFirstName')->willReturn('First');
+  $user_mock-><mark class="fragment">expects($this->once())</mark>->method('getLastName')->willReturn('Last');
   $profile = new Profile($user_mock);
 
-  $profile->getFullName();
+  <mark class="fragment">$profile->getFullName();</mark>
             </code></pre>
             <p style="font-size:80%">Like a spy, but runs assertions on execution of CUT.</li>
             <aside class="notes">
@@ -516,12 +539,14 @@ Similarly, a great test double makes great code when (a) the double looks like t
 
           <section>
             <h2>2. Solitary vs Sociable</h2>
-<!--
-@todo insert image of....
-
--->
+            <img src="assets/bay-bridge.jpg" style="max-width:80%">
+            <small><em>"Bay Bridge", photo by California Department of Transportation</em></small>
             <aside class="notes">
               <ul>
+                <li>If you don't know this image or can't identify with it, you shouldn't be in this session</li>
+                <li>La Brea Tar Pits - fossil rich; mammoths</li>
+                <li>Any paw can be pulled away</li>
+								<li>surprise of the stickiness of the problem</li>
               </ul>
             </aside>
           </section>
@@ -585,6 +610,10 @@ Similarly, a great test double makes great code when (a) the double looks like t
               <ul>
               </ul>
             </aside>
+          </section>
+
+          <section>
+            <img src="assets/not-sure-if-head-is-exploding.jpg">
           </section>
 
 <!--
@@ -683,20 +712,20 @@ I can apply sociable vs solitary
 
           <section>
             <pre><code data-trim data-noescape class="php">
-  public function testLoadStartsSession() {
+&nbsp;&nbsp;public function testLoadStartsSession() {
     $statement = $this->getMock(StatementInterface::class);
     $connection = $this->getMockBuilder(Connection::class)
         ->disableOriginalConstructor()
         ->getMock();
     $connection->method('query')->willReturn($statement);
     $session = $this->getMock(SessionInterface::class);
-    <mark class="fragment" data-fragment-index="2">$session->expects($this->once())->method('start');</mark>
+    <mark class="fragment">$session->expects($this->once())->method('start');</mark>
     $csrf_token = $this->getMockBuilder(CsrfTokenGenerator::class)
         ->disableOriginalConstructor()
         ->getMock();
     $batch_storage = new BatchStorage($connection, $session, $csrf_token);
 
-    <mark class="fragment" data-fragment-index="1">$batch_storage->load(123);</mark>
+    <mark class="fragment">$batch_storage->load(123);</mark>
   }
             </code></pre>
             <aside class="notes">
@@ -717,7 +746,7 @@ I can apply sociable vs solitary
 
           <section>
             <pre><code data-trim data-noescape class="php">
-  public function testLoadStartsSession() {
+&nbsp;&nbsp;public function testLoadStartsSession() {
     $prophet = new Prophet();
     $statement = $this->getMock(StatementInterface::class);
     $connection = $this->getMockBuilder(Connection::class)
@@ -836,15 +865,23 @@ interface MaintenanceModePageInterface {
 
           <section>
             <p>2. Create a subscriber to override page rendering</p>
-            <pre><code class="php" data-trim data-noescape class="php">
-  public function onKernelRequestMaintenance(GetResponseEvent $event) {
-    $route_match = RouteMatch::createFromRequest($event->getRequest());
-    if ($this->maintenanceMode->applies($route_match)) {
-      if (!$this->maintenanceMode->exempt($this->account)) {
-        $response = $this->maintenancePage->getResponse();
-        $event->setResponse($response);
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;class MaintenanceModePageOverrideSubscriber {
+
+    public function __construct(<mark class="fragment">MaintenanceModePageInterface $maintenance_mode_page</mark>) {
+      $this->maintenanceModePage = $maintenance_mode_page;
+    }
+
+    public function onKernelRequestMaintenance(GetResponseEvent $event) {
+      $route_match = RouteMatch::createFromRequest($event->getRequest());
+      if ($this->maintenanceModePage-><mark class="fragment">applies</mark>($route_match)) {
+        if (!$this->maintenanceModePage-><mark class="fragment">exempt</mark>($this->account)) {
+          $response = $this->maintenanceModePage-><mark class="fragment">getResponse()</mark>;
+          $event->setResponse($response);
+        }
       }
     }
+
   }
             </code></pre>
             <aside class="notes">
@@ -1067,7 +1104,7 @@ interface MaintenanceModePageInterface {
   class IncrementTest extends TestCase {
     public function testIncrement() {
       // Arrange.
-      $product = new \Product();
+      $product = new Product();
       $product->favorite_count = 1;
 
       // Act.
@@ -1210,6 +1247,29 @@ interface MaintenanceModePageInterface {
           </section>
 
           <section>
+            <h3>Unit testing is too expensive.</h3>
+            <img src="assets/congo-bridge.jpg" style="max-width:70%">
+            <aside class="notes">
+              <ul>
+                <li>Find a good tree, slice it up, bind it with rope</li>
+                <li>You don't want to follow that process for the Bay Bridge, but sometimes its OK not to</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Unit testing is required.</h3>
+            <img src="assets/chicago-bridge.jpg" style="max-width:70%">
+            <aside class="notes">
+              <ul>
+                <li>One million people use CTA every day.</li>
+              </ul>
+            </aside>
+          </section>
+
+
+<!--
+          <section>
             <blockquote>
               "If it stinks, change it."
               <p style="font-size:60%" class="attribution">&mdash; Grandma Beck, discussing child-rearing philosophy, "<a href="http://martinfowler.com/books/refactoring.html">Refactoring</a>"</p>
@@ -1221,6 +1281,7 @@ interface MaintenanceModePageInterface {
           <section>
             <p>Solitary unit testing makes bad OOP stinky.</p>
           </section>
+-->
 
         </section>
 
@@ -1402,6 +1463,13 @@ interface MaintenanceModePageInterface {
             </aside>
           </section>
 
+          <section>
+            <h2 style="font-size:150%">Principles of unit testing:<br>test doubles and solitary vs sociable</h3>
+            <img src="assets/wonder-woman-double.jpg" style="border:none;max-width:43%;float:left">
+            <img src="assets/bay-bridge.jpg" style="border:none;max-width:50%;float:right">
+          </section>
+
+
 <!--
 @todo final thought: KE's comment "this is why Drupal is great"
 just browse through symfony's test suite
@@ -1433,6 +1501,8 @@ it will give you good feels and make you feel like there are super heros out the
             <h3>References</h3>
 
             <ul style="font-size:80%">
+              <li>"<a href="https://www.popsci.com/scitech/article/2008-05/indestructable-bridge">The Indestructible Bridge</a>", Popular Magazine</li>
+              <li>"<a href="https://www.wired.com/2015/06/mystery-brand-new-bay-bridges-corroded-steel/">The Mystery of the Brand-New Bay Bridge's Corroded Steel</a>", WIRED magazine</li>
               <li>"<a href="http://martinfowler.com/bliki/UnitTest.html">UnitTest</a>", Martin Fowler</li>
               <li>"<a href="https://leanpub.com/wewut">Working Effectively With Unit Tests</a>", Jay Fields</li>
               <li>"<a href="http://www.williamcaputo.com/archives/000019.html">TDD Pattern: Do not cross boundaries</a>", William E. Caputo</li>
