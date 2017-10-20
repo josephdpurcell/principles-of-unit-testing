@@ -43,6 +43,9 @@
 .reveal .slides section mark {
   background: #fff47e;
 }
+.reveal .slides section mark.alert {
+  background: #fe9595;
+}
 .reveal .slides section mark.visible,
 .reveal .slides section mark.visible .hljs-title,
 .reveal .slides section mark.visible .hljs-name,
@@ -227,7 +230,7 @@ and an important symbol for the 5 sections
             <ul>
               <li>a function (e.g. <code>t()</code>)</li>
               <li>a method on a class (e.g. <code>function build()</code>)</li>
-              <li>a script (.e.g <code>update.php</code>)</li>
+              <li>a script (e.g. <code>update.php</code>)</li>
             </ul>
             <p class="fragment" style="padding-left:3em;text-align:left">...<b>one thing</b></p>
             <aside class="notes">
@@ -250,7 +253,7 @@ and an important symbol for the 5 sections
 &nbsp;&nbsp;use PHPUnit\Framework\TestCase;
 
   class IncrementTest extends TestCase {
-    public function testIncrement() {
+    public function testIncrementAddsOne() {
       $result = increment(1);
 
       <mark class="fragment">$this->assertEquals(2, $result);</mark>
@@ -341,8 +344,8 @@ Similarly, a great test double makes great code when (a) the double looks like t
           <section>
             <p>There are two challenges with testing a unit:</p>
             <ol style="width:60%">
-              <li>indirect inputs (shared state)</li>
-              <li>indirect outputs (side effects)</li>
+              <li class="fragment">indirect inputs (shared state)</li>
+              <li class="fragment">indirect outputs (side effects)</li>
             </ol>
             <br>
             <br>
@@ -356,10 +359,37 @@ Similarly, a great test double makes great code when (a) the double looks like t
           </section>
 
           <section>
-            <h3>Example</h3>
-            <b>A Unit With A Side Effect</b>
+            <h3>Example 1</h3>
+            <b>A Unit with an Indirect Input</b>
             <pre><code data-trim data-noescape class="php">
-&nbsp;&nbsp;function increment(Product $product) {
+&nbsp;&nbsp;function get_product($id) {
+    $product_storage = \Drupal::service('entity.manager')->getStorage('product');
+    return <mark class="fragment">$product_storage->load($id)</mark>;
+  }
+            </code></pre>
+
+            <b>A Test</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;public function testGetProductRetrievesId() {
+    $product_id = 1;
+
+    $result = get_product($product_id);
+
+    <mark class="fragment alert">$this->assertEquals($product_id, $result->id());</mark>
+  }
+            </code></pre>
+            <b class="fragment">Exception: no database to read from!</b>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Example 2</h3>
+            <b>A Unit with a Side Effect</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;function increment_product_favorite_amount(Product $product) {
     $product->favorite_count = $product->favorite_amount + 1;
     <mark class="fragment">$product->save();</mark>
     return $product;
@@ -368,15 +398,16 @@ Similarly, a great test double makes great code when (a) the double looks like t
 
             <b>A Test</b>
             <pre><code data-trim data-noescape class="php">
-&nbsp;&nbsp;public function testIncrement() {
-    $product = new \Product();
+&nbsp;&nbsp;public function testIncrementProductFavoriteAmountAddsOne() {
+    $product = new Product();
     $product->favorite_count = 1;
 
     $result = increment($product);
 
-    <mark class="fragment">$this->assertEquals(2, $result->favorite_count);</mark>
+    <mark class="fragment alert">$this->assertEquals(2, $result->favorite_count);</mark>
   }
             </code></pre>
+            <b class="fragment">Exception: no database to write to!</b>
             <aside class="notes">
               <ul>
               </ul>
@@ -604,7 +635,7 @@ Similarly, a great test double makes great code when (a) the double looks like t
               <li>Collaborators that return objects<br>
               should return doubles.</li>
               <li>No statics.</li>
-              <li><em>Caveat: value objects don't count.</em></li>
+              <li class="fragment"><em>Caveat: value objects don't count.</em></li>
             </ul>
             <aside class="notes">
               <ul>
@@ -680,12 +711,12 @@ I can apply sociable vs solitary
           <section>
             <h3>Example 1</h3>
             <code>Drupal\Core\Batch\BatchStorage</code>
-            <pre><code class="php">
+            <pre><code data-trim data-noescape class="php">
   public function load($id) {
-    $this->session->start();
-    $batch = $this->connection->query("SELECT batch FROM {batch} WHERE bid = :bid AND token = :token", array(
+    $this-><mark class="fragment">session->start()</mark>;
+    $batch = $this-><mark class="fragment">connection->query</mark>("SELECT batch FROM {batch} WHERE bid = :bid AND token = :token", array(
       ':bid' => $id,
-      ':token' => $this->csrfToken->get($id),
+      ':token' => $this-><mark class="fragment">csrfToken->get($id)</mark>,
     ))->fetchField();
     if ($batch) {
       return unserialize($batch);
@@ -713,17 +744,22 @@ I can apply sociable vs solitary
           <section>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;public function testLoadStartsSession() {
+    // Handle the session start side effect.
+    $session = $this->getMock(SessionInterface::class);
+    <mark class="fragment">$session->expects($this->once())->method('start');</mark>
+
+    // Handle the query indirect input.
     $statement = $this->getMock(StatementInterface::class);
     $connection = $this->getMockBuilder(Connection::class)
         ->disableOriginalConstructor()
         ->getMock();
-    $connection->method('query')->willReturn($statement);
-    $session = $this->getMock(SessionInterface::class);
-    <mark class="fragment">$session->expects($this->once())->method('start');</mark>
-    $csrf_token = $this->getMockBuilder(CsrfTokenGenerator::class)
+    <mark class="fragment">$connection->method('query')->willReturn($statement);</mark>
+
+    // Handle the CSRF token indirect input.
+    <mark class="fragment">$csrf_token_dummy</mark> = $this->getMockBuilder(CsrfTokenGenerator::class)
         ->disableOriginalConstructor()
         ->getMock();
-    $batch_storage = new BatchStorage($connection, $session, $csrf_token);
+    $batch_storage = new BatchStorage($connection, $session, $csrf_token_dummy);
 
     <mark class="fragment">$batch_storage->load(123);</mark>
   }
@@ -747,13 +783,13 @@ I can apply sociable vs solitary
           <section>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;public function testLoadStartsSession() {
+    $session = $prophet->prophesize(SessionInterface::class);
     $prophet = new Prophet();
     $statement = $this->getMock(StatementInterface::class);
     $connection = $this->getMockBuilder(Connection::class)
         ->disableOriginalConstructor()
         ->getMock();
     $connection->method('query')->willReturn($statement);
-    $session = $prophet->prophesize(SessionInterface::class);
     $csrf_token = $this->getMockBuilder(CsrfTokenGenerator::class)
         ->disableOriginalConstructor()
         ->getMock();
@@ -868,7 +904,7 @@ interface MaintenanceModePageInterface {
             <pre><code class="php" data-trim data-noescape>
 &nbsp;&nbsp;class MaintenanceModePageOverrideSubscriber {
 
-    public function __construct(<mark class="fragment">MaintenanceModePageInterface $maintenance_mode_page</mark>) {
+    public function __construct(<mark class="fragment">MaintenanceModePageInterface</mark> $maintenance_mode_page) {
       $this->maintenanceModePage = $maintenance_mode_page;
     }
 
@@ -1247,8 +1283,9 @@ interface MaintenanceModePageInterface {
           </section>
 
           <section>
-            <h3>Unit testing is too expensive.</h3>
+            <h3>Unit testing provides low level of benefit.</h3>
             <img src="assets/congo-bridge.jpg" style="max-width:70%">
+            <small><em>Photo of wooden bridge in eastern Congo, photo courteousy of Lori Babcock.</em></small>
             <aside class="notes">
               <ul>
                 <li>Find a good tree, slice it up, bind it with rope</li>
@@ -1258,8 +1295,9 @@ interface MaintenanceModePageInterface {
           </section>
 
           <section>
-            <h3>Unit testing is required.</h3>
+            <h3>Unit testing provides high level of benefit.</h3>
             <img src="assets/chicago-bridge.jpg" style="max-width:70%">
+            <small><em>Photo of two-level bascule bridge in Chicago, IL, photo courteousy of Lori Babcock.</em></small>
             <aside class="notes">
               <ul>
                 <li>One million people use CTA every day.</li>
