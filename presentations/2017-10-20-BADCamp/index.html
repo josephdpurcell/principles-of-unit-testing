@@ -91,6 +91,15 @@ Outline:
   5. Motivations
     a.
 
+@todo feedback:
+
+45 min presentaiton:
+- didn't have time for all the test smells
+- didn't thave time for motivations
+- address: do I need unit testing for my project?
+- coal train example: you may just want an old coal train you drive over any bridge: THIS is your business!
+- but, if you have a million coal trains and want to ensure it doesn't corrode in the next 10 yrs, you probably want unit tests (e.g. bay bridge's bolts corroding)
+
 -->
 
         <!-- SECTION 1: Intro -->
@@ -148,8 +157,6 @@ Outline:
             </ol>
           </section>
 
-<!-- @todo insert meme about head exploding or about how this will be very acadameic material -->
-
           <section>
             <h1>Overview</h1>
             <ol style="list-style-type:upper-roman">
@@ -172,10 +179,6 @@ Outline:
 <!--
 ===============================================================================
                Part I. Definition of Unit Testing
-@todo is there a visual cue that is better than what I've got?
-
-maybe a key for the two key points
-and an important symbol for the 5 sections
 ===============================================================================
 -->
 
@@ -269,12 +272,6 @@ and an important symbol for the 5 sections
 
 <!--
 @todo comment on the various tools?
-
-@todo better clarify the three levels; should these be more high level?
-
-60 unit test classes
-300 kernel test classes
-400 functional test classes (300 browser test + 100 web test)
 -->
           <section>
             <h3>Consider levels of testing</h3>
@@ -517,9 +514,6 @@ Similarly, a great test double makes great code when (a) the double looks like t
   $user_spy->getFirstName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
   $user_spy->getLastName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
             </code></pre>
-<!--
-@todo verify it is shouldHaveBeenCalled
--->
             <p style="font-size:80%">Like a stub, but captures calls.</li>
             <aside class="notes">
               <ul>
@@ -651,10 +645,6 @@ Similarly, a great test double makes great code when (a) the double looks like t
 @todo insert example of multiple concrete classes
 -->
 
-<!--
-@todo insert transition slide
--->
-
           <section>
             <h3>Recap: Principles of Unit Testing</h3>
             <ul>
@@ -682,11 +672,6 @@ Similarly, a great test double makes great code when (a) the double looks like t
               </li>
             </ul>
           </section>
-<!--
-@todo  insert confident slide that I know what I'm doing
-I can test double
-I can apply sociable vs solitary
--->
         </section>
 
 <!--
@@ -695,9 +680,6 @@ I can apply sociable vs solitary
 ===============================================================================
 -->
 
-<!--
-@todo trim this section down to 2 examples
--->
         <section>
 
           <section>
@@ -1526,10 +1508,6 @@ it will give you good feels and make you feel like there are super heros out the
 
           <section>
             <h2>Thank you!</h2>
-<!--
-@todo is there a link?
-            <p>Feedback is welcome:<br><a href="https://legacy.joind.in/20320">legacy.joind.in/20320</a></p>
--->
             <br>
             <p>Slides are available:<br><a href="https://github.com/josephdpurcell/principles-of-unit-testing">github.com/josephdpurcell/principles-of-unit-testing</a></p>
             <p>Let's talk! @josephdpurcell</p>
