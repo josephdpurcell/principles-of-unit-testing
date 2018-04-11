@@ -81,7 +81,6 @@ Outline:
   3. Principles
     a. The 5 test doubles
     b. Solitary vs Sociable
-    c. Arrange, Act, Assert
   4. Test Smells
     a. Obscure test
     b. Assertion Roulette
@@ -89,15 +88,6 @@ Outline:
     d. Test Code Duplication
     e. High Test Maintenance Cost
   5. Motivations
-    a.
-
-45 min presentaiton:
-- didn't have time for all the test smells
-- didn't thave time for motivations
-- address: do I need unit testing for my project?
-- coal train example: you may just want an old coal train you drive over any bridge: THIS is your business!
-- but, if you have a million coal trains and want to ensure it doesn't corrode in the next 10 yrs, you probably want unit tests (e.g. bay bridge's bolts corroding)
-
 -->
 
         <!-- SECTION 1: Intro -->
@@ -128,6 +118,11 @@ Outline:
               <li>Development Team Lead at Digital Bridge Solutions</li>
               <li>Making a difference for B2B companies in the midwest</li>
             </ul>
+            <aside class="notes">
+              <ul>
+                <li>we're hiring</li>
+              </ul>
+            </aside>
           </section>
 
           <section>
@@ -138,6 +133,7 @@ Outline:
                 <li>You are a professional in the web industry</li>
                 <li>You have experienced something like unit testing and have some idea of what it is</li>
                 <li>You are open to challenging how you think about it</li>
+                <li>This will be more advanced for some, this will be more introductory for some--but, there should be a call to action for everyone</li>
               </ul>
             </aside>
           </section>
@@ -147,8 +143,14 @@ Outline:
             <small><em>"Tar Pit" in Mythical Man Month by Fred Brooks</em></small>
             <aside class="notes">
               <ul>
-                <li>You have been in the tarpit</li>
-                <li>...or you want to avoid it</li>
+                <li>vivid image of great beasts struggling against the tar</li>
+                <li>programming can be a tar pit</li>
+                <li>large and small, team after team have become entangled</li>
+                <li>most have running systems, but few met goals, schedules, and budgets</li>
+                <li>no one thing seems to cause the difficulty, any single paw can pull away</li>
+                <li>but the accumulation of simultaneous and interacting factors brings slower and slower motion</li>
+                <li>everyone seems to be surprised by the stickiness of the problem and understand its nature</li>
+                <li>we must try to understand it if we are to solve it</li>
               </ul>
             </aside>
           </section>
@@ -159,6 +161,12 @@ Outline:
               <li class="fragment">You will understand WHAT unit testing is.</li>
               <li class="fragment">You will understand WHEN unit testing is valuable.</li>
             </ol>
+            <aside class="notes">
+              <ul>
+                <li>goal is to leave the room and be able to explain what it is</li>
+                <li>and articulate why or why not you or your team should unit test</li>
+              </ul>
+            </aside>
           </section>
 
           <section>
@@ -167,8 +175,8 @@ Outline:
               <li class="fragment">Definition</li>
               <li class="fragment">Principles
                 <ol>
-                  <li class="fragment">Test Doubles</li>
-                  <li class="fragment">Solitary vs Sociable</li>
+                  <li>Test Doubles</li>
+                  <li>Solitary vs Sociable</li>
                 </ol>
               </li>
               <li class="fragment">Principles by Example</li>
@@ -177,7 +185,8 @@ Outline:
             </ol>
             <aside class="notes">
               <ul>
-                <li>Note: some of the examples are intentionaly simple and fabricated to demonstrate the idea</li>
+                <li>go through list first</li>
+                <li>some of the examples are intentionaly simple and fabricated to demonstrate the idea</li>
               </ul>
             </aside>
           </section>
@@ -194,10 +203,11 @@ Outline:
             <h2>I. Definition</h2>
             <aside class="notes">
               <ul>
-                <li>Who feels like they know with full confidence what a unit test is and how it is different from system tests, functional tests, etc?</li>
-                <li>How many know what test doubles are?</li>
-                <li>How many know what it means to mock the boundary?</li>
-                <li>Problem: many definitions</li>
+                <li>Who feels frustrated by the materials available on how unit testing works and what it is?</li>
+                <li>Problem 1: many ambiguous definitions</li>
+                <li>Problem 2: the books and blogs use different terminology than tooling</li>
+                <li>Problem 3: the terminology across programming languages is inconsistent</li>
+                <li>Look at how other professions have evolved, particularly our parent field of mathematics: good shared definitions</li>
               </ul>
             </aside>
           </section>
@@ -218,7 +228,7 @@ Outline:
             "[I]t's a situational thing - the team decides what
             makes sense to be a unit for the purposes of their
             understanding of the system and its testing."
-            <p class="attribution">&mdash; Martin Fowler, <a href="http://martinfowler.com/bliki/UnitTest.html">martinfowler.com</a></p>
+            <p class="attribution">&mdash; Martin Fowler, <a href="//martinfowler.com/bliki/UnitTest.html">martinfowler.com</a></p>
             </blockquote>
             <aside class="notes">
               <ul>
@@ -228,11 +238,23 @@ Outline:
           </section>
 
           <section>
+            <blockquote>
+            "The software development community simply hasn't managed to settle on well-defined terms around testing."
+            <p class="attribution">&mdash; Martin Fowler, <a href="//martinfowler.com/articles/practical-test-pyramid.html#acceptance">martinfowler.com</a></p>
+            </blockquote>
+            <aside class="notes">
+              <ul>
+                <li>concluding from my earlier point: this is the wrong stance to take for our industry</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
             <p>A unit test verifies a unit's correctness<br>
             against a specification.</p>
             <aside class="notes">
               <ul>
-                <li>"verify" is true to roots: formal verification</li>
+                <li>"verify" and "correctness" are true to roots: formal verification</li>
                 <li>there is nothing you can unit test that could not be described by this definition</li>
               </ul>
             </aside>
@@ -248,6 +270,8 @@ Outline:
             <p class="fragment" style="padding-left:3em;text-align:left">...<b>one thing</b></p>
             <aside class="notes">
               <ul>
+                <li>read then...</li>
+                <li>Have you ever used a step debugger or seen a stack trace?</li>
               </ul>
             </aside>
           </section>
@@ -313,12 +337,22 @@ Outline:
             <h3>This is NOT like a unit test.</h3>
             <img src="assets/train-testing-bridge.jpg">
             <small><em>"Man of Faith", photo from <a href="https://www.popsci.com/scitech/article/2008-05/indestructable-bridge">Popular Science</a></em></small>
+            <aside class="notes">
+            building a bridge THEN testing the WHOLE thing
+            </aside>
           </section>
 
           <section>
             <h3>This is like a unit test.</h3>
             <img src="assets/steel-beam-test.jpg">
             <small><em><a href="https://www.youtube.com/watch?v=YmGcaO33Kl4">Steel Beam Test (YouTube)</a></em></small>
+            <aside class="notes">
+              <ul>
+                <li>testing each part before assembly</li>
+                <li>removing parts to test the material</li>
+                <li>Questions?</li>
+              </ul>
+            </aside>
           </section>
 
         </section>
@@ -366,14 +400,14 @@ Outline:
             </div>
             <aside class="notes">
               <ul>
+                <li>Who has seen Black Panther?</li>
                 <li>Danai as Okoye</li>
-                <li>Janeshia as stunt double</li>
+                <li>Janeshia as stunt double and Dora Milaje</li>
                 <li>professional wrestler</li>
                 <li>US national bobsled team</li>
                 <li>Taekwando, gymnastics</li>
                 <li>8-10 hrs / day for weeks to prepare</li>
-                <li>You can't tell the difference!</li>
-                <li>Your actual live data isn't affected</li>
+                <li>The point: looks and behaves like the real thing</li>
               </ul>
             </aside>
           </section>
@@ -389,8 +423,9 @@ Outline:
             <p class="fragment">... <em>anything that makes it not a pure function.</em></p>
             <aside class="notes">
               <ul>
-                <li>shared state: globals, env vars, db, fs, net</li>
-                <li>side effects: collaborators, db, fs, net</li>
+                <li>Why are they important?</li>
+                <li>shared state: globals, config, filesystem</li>
+                <li>side effects: collaborators, database, filesystem</li>
               </ul>
             </aside>
           </section>
@@ -449,6 +484,8 @@ Outline:
             <b class="fragment">Exception: no database to write to!</b>
             <aside class="notes">
               <ul>
+                <li>Will this test fail?</li>
+                <li>Yes, what is the indirect output?</li>
               </ul>
             </aside>
           </section>
@@ -478,7 +515,7 @@ Outline:
             </dl>
             <aside class="notes">
               <ul>
-                <li>Problem: many definitions</li>
+                <li>Same problem as unit test: many definitions</li>
                 <li>Definitions are inconsistent, see xUnit book</li>
                 <li>PHPUnit terminology does not make it clear which you're doing</li>
               </ul>
@@ -572,7 +609,7 @@ Outline:
 
   <mark class="fragment">$profile->getFullName();</mark>
             </code></pre>
-            <p style="font-size:80%">Like a spy, but runs assertions on execution of CUT.</li>
+            <p style="font-size:80%">Like a spy, but runs assertions on execution of Class Under Test (CUT).</li>
             <aside class="notes">
               <ul>
 								<li>Notice that a mock is less clear than a spy or a stub</li>
@@ -588,8 +625,7 @@ Outline:
             Sociable or Solitary unit testing.</p>
             <aside class="notes">
               <ul>
-                <li>this is the big question</li>
-                <li>doubles smell of danger: over-specification in tests, slow tests, fragile tests</li>
+                <li>this is the big question and where people teams get confused about types of testing and what a good unit test is</li>
               </ul>
             </aside>
           </section>
@@ -634,10 +670,12 @@ Outline:
               </ol>
             </div>
             <div style="width:100%;float:left;font-size:80%;margin-top:2em">
-              <p class="fragment">Source: Jay Fields, "<a href="https://leanpub.com/wewut">Working Effectively With Unit Tests</a>"</p>
+              <p>Source: Jay Fields, "<a href="https://leanpub.com/wewut">Working Effectively With Unit Tests</a>"</p>
             </div>
             <aside class="notes">
               <ul>
+                <li>Sociable it might be OK to boot the kernel</li>
+                <li>Solitary it wouldn't be OK to boot the kernel</li>
               </ul>
             </aside>
           </section>
@@ -659,11 +697,11 @@ Outline:
 
           <section>
             <h3>What does "one concrete class" mean?</h3>
-            <ul class="fragment">
-              <li>Use a double for dependencies.</li>
-              <li>Collaborators that return objects<br>
+            <ul>
+              <li class="fragment">Use a double for dependencies.</li>
+              <li class="fragment">Collaborators that return objects<br>
               should return doubles.</li>
-              <li>No statics.</li>
+              <li class="fragment">No statics.</li>
               <li class="fragment"><em>Caveat: value objects don't count.</em></li>
             </ul>
             <aside class="notes">
@@ -674,6 +712,13 @@ Outline:
 
           <section>
             <img src="assets/not-sure-if-head-is-exploding.jpg">
+            <aside class="notes">
+              <ul>
+                <li>These definitions are a lot, but critical to understanding</li>
+                <li>Critical for our industry to move forward in this area</li>
+                <li>Let's recap</li>
+              </ul>
+            </aside>
           </section>
 
 <!--
@@ -887,6 +932,15 @@ class MaintenanceModeSubscriber {
             <h3>We can't solitary test this.</h3>
             <aside class="notes">
               <ul>
+                <li>This means we'll need LOTs of test doubles</li>
+                <li>What do we do?
+                  <ul>
+                    <li>Is the problem that unit testing is hard?</li>
+                    <li>Or is the problem that our code is hard to test?</li>
+                    <li>Do we write a HUGE sociable test that's fragline and impossible to maintain?</li>
+                    <li>Or...</li>
+                  </ul>
+                </li>
               </ul>
             </aside>
           </section>
@@ -895,6 +949,8 @@ class MaintenanceModeSubscriber {
             <img src="assets/brace-yourself-refactoring.jpg" style="border:none">
             <aside class="notes">
               <ul>
+                <li>Refactoring is a good and natural part of development</li>
+                <li>It is part of your job</li>
               </ul>
             </aside>
           </section>
@@ -902,8 +958,8 @@ class MaintenanceModeSubscriber {
           <section>
             <h3 style="text-align:left">Let's...</h3>
             <ol>
-              <li>Delete the untestable code and re-implement later.</li>
-              <li>Break the class into two responsibilities:
+              <li class="fragment">Delete the untestable code and re-implement later.</li>
+              <li class="fragment">Break the class into two responsibilities:
                 <ul>
                   <li>setting response</li>
                   <li>showing a message</li>
@@ -946,8 +1002,8 @@ interface MaintenanceModePageInterface {
 
     public function onKernelRequestMaintenance(GetResponseEvent $event) {
       $route_match = RouteMatch::createFromRequest($event->getRequest());
-      if ($this->maintenanceModePage-><mark class="fragment">applies</mark>($route_match)) {
-        if (!$this->maintenanceModePage-><mark class="fragment">exempt</mark>($this->account)) {
+      if ($this->maintenanceMode-><mark class="fragment">applies</mark>($route_match)) {
+        if (!$this->maintenanceMode-><mark class="fragment">exempt</mark>($this->account)) {
           $response = $this->maintenanceModePage-><mark class="fragment">getResponse()</mark>;
           $event->setResponse($response);
         }
@@ -1020,6 +1076,7 @@ interface MaintenanceModePageInterface {
             <img src="assets/one-does-not-simply-write-unit-tests.png" style="border:none;">
             <aside class="notes">
               <ul>
+                <li>Thinking through a good unit test is hard</li>
                 <li>There is much to consider</li>
               </ul>
             </aside>
@@ -1256,7 +1313,7 @@ interface MaintenanceModePageInterface {
             </code></pre>
             <aside class="notes">
               <ul>
-                <li>This is all over core!</li>
+                <li><b>This is all over core!</b></li>
               </ul>
             </aside>
           </section>
@@ -1459,7 +1516,7 @@ interface MaintenanceModePageInterface {
           </section>
 
           <section>
-            <h3 style="font-size:180%;text-align:left">Unless someone like you<br>
+            <h3 class="fragment" style="font-size:180%;text-align:left">Unless someone like you<br>
             cares a whole awful lot,<br>
                   nothing is going to<br>
                     get better, it's not<br></h3>
@@ -1467,6 +1524,15 @@ interface MaintenanceModePageInterface {
             <!--
             <img src="assets/the-lorax-similar.png" style="background:none;border:none;box-shadow:none;float:right">
             -->
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <img src="assets/issue-2799479-kyle-einecker-this-is-why-drupal-8-is-good.png" style="border:none;width:120%">
+            <img src="assets/issue-2799479-needs-work-because-tests.png" style="border:none;width:120%" class="fragment">
             <aside class="notes">
               <ul>
               </ul>
@@ -1487,9 +1553,6 @@ interface MaintenanceModePageInterface {
             <h3>Ok, but where do I start?</h3>
           </section>
 
-<!--
-@todo post results
--->
           <section>
             <img src="assets/drupal-8.5-phpmetrics.png" style="border:none;width:100%">
             <small><em>Drupal 8.5 code metrics generated by <a href="http://www.phpmetrics.org/">phpmetrics.org</a>, see <a href="http://josephdpurcell.github.io/code-climate-and-drupal/phpmetrics/reports/drupal/drupal/8.5.x-9792ce922070ca1fdf944ce69413b8e06139e283.html">results</a>.</em></small>
@@ -1524,21 +1587,21 @@ interface MaintenanceModePageInterface {
           </section>
 
           <section>
-            <h2 style="font-size:140%">Remember the Principles of Unit Testing:<br>test doubles&nbsp;&nbsp;&nbsp;and&nbsp;&nbsp;&nbsp;solitary vs sociable</h3>
+            <h2 style="font-size:140%">Remember the Principles of Unit Testing:</h2>
+
+            <p>&nbsp;</p>
+
+            <div style="width:100%">
+              <div style="float:left;width:44%">test doubles</div>
+              <div style="float:right;width:54%">solitary vs sociable</div>
+            </div>
 
             <div>
-              <img src="assets/janeshia-adams-ginyard-black-panther-cbc.jpg" style="border:none;width:39%;float:left">
-              <img src="assets/Gateway_Bridge.jpg" style="border:none;width:49%;float:left;margin-left:2%">
+              <img src="assets/janeshia-adams-ginyard-black-panther-cbc.jpg" style="border:none;width:44%;float:left">
+              <img src="assets/Gateway_Bridge.jpg" style="border:none;width:54%;float:left;margin-left:2%">
             </div>
 
           </section>
-
-
-<!--
-@todo final thought: KE's comment "this is why Drupal is great"
-just browse through symfony's test suite
-it will give you good feels and make you feel like there are super heros out there
--->
 
         </section>
 
