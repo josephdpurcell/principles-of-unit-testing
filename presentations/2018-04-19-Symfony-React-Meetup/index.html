@@ -1,0 +1,1166 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Principles of Unit Testing</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/dbridge.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+<style>
+.reveal h1 {
+  font-size: 2.5em;
+}
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+.flex-container > div {
+  flex-grow: 2;
+  flex: 2 50%;
+}
+
+.reveal .slides section mark.fragment:not(.current-fragment):not(.visible) {
+  opacity: 1;
+  visibility: visible;
+  background: none;
+  color: inherit;
+}
+.reveal .slides section mark {
+  background: #fff47e;
+}
+.reveal .slides section mark.alert {
+  background: #fe9595;
+}
+.reveal .slides section mark.visible,
+.reveal .slides section mark.visible .hljs-title,
+.reveal .slides section mark.visible .hljs-name,
+.reveal .slides section mark.visible .hljs-selector-id,
+.reveal .slides section mark.visible .hljs-selector-class,
+.reveal .slides section mark.visible .hljs-section,
+.reveal .slides section mark.visible .hljs-type,
+.reveal .slides section mark.visible .hljs-string,
+.reveal .slides section mark.visible .hljs-keyword {
+  color: #333;
+}
+</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+<!--
+
+Outline:
+
+  1. Intro
+    a. Who am I
+    b. Who are you
+    c. Story
+    d. Overview
+  2. Definition
+    a. What is a unit test?
+    b. What is a unit?
+    c. What is a boundary?
+    d. What is a test double?
+    e. How does unit test compare to others? (Note: you can do all these w PHPUnit)
+  3. Principles
+    a. The 5 test doubles
+    b. Solitary vs Sociable
+  4. Test Smells
+    a. Obscure test
+    b. Assertion Roulette
+    c. Fragile Test
+    d. Test Code Duplication
+    e. High Test Maintenance Cost
+  5. Motivations
+-->
+
+        <!-- SECTION 1: Intro -->
+        <section>
+
+          <section>
+            <h1>Principles of Unit Testing</h1>
+            <div class="flex-container">
+              <div>
+                <p>by Joseph D. Purcell</p>
+              </div>
+              <div>
+                <p>at Chicago Symfony Meetup</p>
+              </div>
+              <div>
+                <small><a href="https://twitter.com/josephdpurcell">@josephdpurcell</a></small>
+              </div>
+              <div>
+                <small>April 19, 2018</small>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Who am I?</h2>
+            <ul>
+              <li>PHP developer since 2003</li>
+              <li>Development Team Lead at Digital Bridge Solutions</li>
+              <li>Making a difference for B2B companies in the midwest</li>
+            </ul>
+            <aside class="notes">
+              <ul>
+                <li>we're hiring</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h2>Who are you?</h2>
+            <aside class="notes">
+              <ul>
+                <li>I'm not packaging this as an entertaining talk--we are here to learn and challenge ideas</li>
+                <li>You are a professional in the web industry</li>
+                <li>You have experienced something like unit testing and have some idea of what it is</li>
+                <li>You are open to challenging how you think about it</li>
+                <li>This will be more advanced for some, this will be more introductory for some--but, there should be a call to action for everyone</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <img src="assets/mythical-man-month-tar-pit.jpg" style="border:none">
+            <small><em>"Tar Pit" in Mythical Man Month by Fred Brooks</em></small>
+            <aside class="notes">
+              <ul>
+                <li>vivid image of great beasts struggling against the tar</li>
+                <li>programming can be a tar pit</li>
+                <li>large and small, team after team have become entangled</li>
+                <li>most have running systems, but few met goals, schedules, and budgets</li>
+                <li>no one thing seems to cause the difficulty, any single paw can pull away</li>
+                <li>but the accumulation of simultaneous and interacting factors brings slower and slower motion</li>
+                <li>everyone seems to be surprised by the stickiness of the problem and understand its nature</li>
+                <li>we must try to understand it if we are to solve it</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h2>Two takeaways:</h2>
+            <ol>
+              <li class="fragment">You will understand WHAT unit testing is.</li>
+              <li class="fragment">You will understand WHEN unit testing is valuable.</li>
+            </ol>
+            <aside class="notes">
+              <ul>
+                <li>goal is to leave the room and be able to explain what it is</li>
+                <li>and articulate why or why not you or your team should unit test</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h1>Overview</h1>
+            <ol style="list-style-type:upper-roman">
+              <li class="fragment">Definition</li>
+              <li class="fragment">Principles
+                <ol>
+                  <li>Test Doubles</li>
+                  <li>Solitary vs Sociable</li>
+                </ol>
+              </li>
+              <li class="fragment">Test&nbsp;Smells</li>
+              <li class="fragment">Motivations</li>
+            </ol>
+            <aside class="notes">
+              <ul>
+                <li>go through list first</li>
+                <li>some of the examples are intentionaly simple and fabricated to demonstrate the idea</li>
+              </ul>
+            </aside>
+          </section>
+        </section>
+
+<!--
+===============================================================================
+               Part I. Definition of Unit Testing
+===============================================================================
+-->
+
+        <section>
+          <section>
+            <h2>I. Definition</h2>
+            <aside class="notes">
+              <ul>
+                <li>Who feels frustrated by the materials available on how unit testing works and what it is?</li>
+                <li>Problem 1: many ambiguous definitions</li>
+                <li>Problem 2: the books and blogs use different terminology than tooling</li>
+                <li>Problem 3: the terminology across programming languages is inconsistent</li>
+                <li>Look at how other professions have evolved, particularly our parent field of mathematics: good shared definitions</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>What is a "unit test"?</h3>
+            <aside class="notes">
+              <ul>
+                <li>WikiPedia is most often quoted; but really? that's the best we can do?</li>
+                <li>xUnit is close but still ambiguous</li>
+                <li>Let's be more careful about definition</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <blockquote>
+            "[I]t's a situational thing - the team decides what
+            makes sense to be a unit for the purposes of their
+            understanding of the system and its testing."
+            <p class="attribution">&mdash; Martin Fowler, <a href="//martinfowler.com/bliki/UnitTest.html">martinfowler.com</a></p>
+            </blockquote>
+            <aside class="notes">
+              <ul>
+                <li>This does get at the heart of how to approach it, but it's nothing you can build definitions on.</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <blockquote>
+            "The software development community simply hasn't managed to settle on well-defined terms around testing."
+            <p class="attribution">&mdash; Martin Fowler, <a href="//martinfowler.com/articles/practical-test-pyramid.html#acceptance">martinfowler.com</a></p>
+            </blockquote>
+            <aside class="notes">
+              <ul>
+                <li>concluding from my earlier point: this is the wrong stance to take for our industry</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <p>A unit test verifies a unit's correctness<br>
+            against a specification.</p>
+            <aside class="notes">
+              <ul>
+                <li>"verify" and "correctness" are true to roots: formal verification</li>
+                <li>there is nothing you can unit test that could not be described by this definition</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <p style="padding-left:3em;text-align:left">A unit is...</p>
+            <ul>
+              <li>a function (e.g. <code>t()</code>)</li>
+              <li>a method on a class (e.g. <code>function build()</code>)</li>
+              <li>a script (e.g. <code>update.php</code>)</li>
+            </ul>
+            <p class="fragment" style="padding-left:3em;text-align:left">...<b>one thing</b></p>
+            <aside class="notes">
+              <ul>
+                <li>read then...</li>
+                <li>Have you ever used a step debugger or seen a stack trace?</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <p style="padding-left:3em;text-align:left">Think of it as a single frame in a call stack...
+              <img src="assets/call-stack.png">
+            </p>
+            <aside class="notes">
+              <ul>
+                <li>Each stack frame is also called a subroutine</li>
+                <li>Each one of these is a "unit" that you test in unit testing</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Example</h3>
+            <b>A Unit</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;function <mark class="fragment">increment</mark>($a) {
+    return $a + 1;
+  }
+            </code></pre>
+
+            <b>A Unit Test</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;use PHPUnit\Framework\TestCase;
+
+  class IncrementTest extends TestCase {
+    public function testIncrementAddsOne() {
+      $result = increment(1);
+
+      <mark class="fragment">$this->assertEquals(2, $result);</mark>
+    }
+  }
+            </code></pre>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+
+<!--
+@todo comment on the various tools?
+-->
+          <section>
+            <h3>Consider levels of testing</h3>
+            <ol>
+              <li class="fragment">Solitary Unit Testing (e.g. UnitTestCase)</li>
+              <li class="fragment">Sociable Unit Testing (e.g. KernelTestBase)</li>
+              <li class="fragment">Functional Testing (e.g. BrowserTestBase)</li>
+            </ol>
+            <br>
+            <br>
+            <p class="fragment"><em>Point of confusion: these can all be written in PHPUnit.</em></p>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h3>This is NOT like a unit test.</h3>
+            <img src="assets/train-testing-bridge.jpg">
+            <small><em>"Man of Faith", photo from <a href="https://www.popsci.com/scitech/article/2008-05/indestructable-bridge">Popular Science</a></em></small>
+            <aside class="notes">
+            building a bridge THEN testing the WHOLE thing
+            </aside>
+          </section>
+
+          <section>
+            <h3>This is like a unit test.</h3>
+            <img src="assets/steel-beam-test.jpg">
+            <small><em><a href="https://www.youtube.com/watch?v=YmGcaO33Kl4">Steel Beam Test (YouTube)</a></em></small>
+            <aside class="notes">
+              <ul>
+                <li>testing each part before assembly</li>
+                <li>removing parts to test the material</li>
+                <li>Questions?</li>
+              </ul>
+            </aside>
+          </section>
+
+        </section>
+
+<!--
+===============================================================================
+                          Part II. Principles
+===============================================================================
+-->
+
+        <section>
+
+          <section>
+            <h2>II. Principles</h2>
+            <aside class="notes">
+              <ul>
+                <li>How many know what test doubles are?</li>
+                <li>How many know what it means to mock the boundary?</li>
+                <li>Problem: many definitions</li>
+              </ul>
+            </aside>
+          </section>
+
+<!--
+===============================================================================
+                Part II. Principles: Test Doubles
+===============================================================================
+-->
+
+          <section>
+            <h2>1. Test Doubles</h2>
+            <div>
+              <div style="float:left;width:50%">
+                <p style="font-size:60%">
+                  <img src="assets/okoye.jpeg" style="border:none">
+                  <i>Source: Fandom (<a href="http://marvelcinematicuniverse.wikia.com/wiki/File:Okoye_Profile_Final.JPG">link</a>)</i>
+                </p>
+              </div>
+              <div style="float:left;width:50%">
+                <p style="font-size:60%">
+                  <img src="assets/janeshia-adams-ginyard-black-panther-cbc.jpg" style="border:none">
+                  <i>Source: Jeneshia via CBC News (<a href="http://www.cbc.ca/news/canada/calgary/calgary-janeshia-adams-ginyard-black-panther-1.4587238">link</a>)</i>
+                </p>
+              </div>
+            </div>
+            <aside class="notes">
+              <ul>
+                <li>Who has seen Black Panther?</li>
+                <li>Danai as Okoye</li>
+                <li>Janeshia as stunt double and Dora Milaje</li>
+                <li>professional wrestler</li>
+                <li>US national bobsled team</li>
+                <li>Taekwando, gymnastics</li>
+                <li>8-10 hrs / day for weeks to prepare</li>
+                <li>The point: looks and behaves like the real thing</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <p>There are two challenges with testing a unit:</p>
+            <ol style="width:60%">
+              <li class="fragment">indirect inputs (shared state)</li>
+              <li class="fragment">indirect outputs (side effects)</li>
+            </ol>
+            <br>
+            <br>
+            <p class="fragment">... <em>anything that makes it not a pure function.</em></p>
+            <aside class="notes">
+              <ul>
+                <li>Why are they important?</li>
+                <li>shared state: globals, config, filesystem</li>
+                <li>side effects: collaborators, database, filesystem</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Example 1</h3>
+            <b>A Unit with an Indirect Input</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;function get_product($id) {
+    $product_storage = \Drupal::service('entity.manager')->getStorage('product');
+    return <mark class="fragment">$product_storage->load($id)</mark>;
+  }
+            </code></pre>
+
+            <b>A Unit Test</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;public function testGetProductRetrievesId() {
+    $product_id = 1;
+
+    $result = <mark class="fragment alert">get_product($product_id);</mark>
+
+    $this->assertEquals($product_id, $result->id());
+  }
+            </code></pre>
+            <b class="fragment">Exception: no database to read from!</b>
+            <aside class="notes">
+              <ul>
+                <li>Will this test fail?</li>
+                <li>Yes, what is the indirect input?</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Example 2</h3>
+            <b>A Unit with a Side Effect</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;function increment_product_favorite_amount(Product $product) {
+    $product->favorite_count = $product->favorite_amount + 1;
+    <mark class="fragment">$product->save();</mark>
+    return $product;
+  }
+            </code></pre>
+
+            <b>A Unit Test</b>
+            <pre><code data-trim data-noescape class="php">
+&nbsp;&nbsp;public function testIncrementProductFavoriteAmountAddsOne() {
+    $product = new Product();
+    $product->favorite_count = 1;
+
+    $result = <mark class="fragment alert">increment_product_favorite_amount($product);</mark>
+
+    $this->assertEquals(2, $result->favorite_count);
+  }
+            </code></pre>
+            <b class="fragment">Exception: no database to write to!</b>
+            <aside class="notes">
+              <ul>
+                <li>Will this test fail?</li>
+                <li>Yes, what is the indirect output?</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <p>Test doubles are the tools we use<br>
+            to test units that have shared state or side effects.</p>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Test Doubles</h3>
+            <dl>
+              <dt class="fragment" data-fragment-index="1">Dummy</dt>
+                <dd class="fragment" data-fragment-index="1">never called</dd>
+              <dt class="fragment" data-fragment-index="2">Fake</dt>
+                <dd class="fragment" data-fragment-index="2">is called</dd>
+              <dt class="fragment" data-fragment-index="3">Stub</dt>
+                <dd class="fragment" data-fragment-index="3">provide indirect inputs</dd>
+              <dt class="fragment" data-fragment-index="4">Spy</dt>
+                <dd class="fragment" data-fragment-index="4">provide indirect inputs, capture indirect outputs</dd>
+              <dt class="fragment" data-fragment-index="5">Mock</dt>
+                <dd class="fragment" data-fragment-index="5">provide indirect inputs, verify indirect outputs</dd>
+            </dl>
+            <aside class="notes">
+              <ul>
+                <li>Same problem as unit test: many definitions</li>
+                <li>Definitions are inconsistent, see xUnit book</li>
+                <li>PHPUnit terminology does not make it clear which you're doing</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Dummy</h3>
+            <pre><code class="php" style="width:66em;margin-left:-3em" data-trim data-noescape>
+&nbsp;&nbsp;<mark class="fragment" data-fragment-index="1">$token_dummy</mark> = $this->getMock('Symfony\Component\Security\Core\Authentication\Token\TokenInterface');
+  <mark class="fragment" data-fragment-index="3">$object_dummy</mark> = new \stdClass();
+
+  $voter = new Voter();
+
+  $this->assertEquals(VoterInterface::ACCESS_GRANTED, $voter->vote(<mark class="fragment" data-fragment-index="2">$token_dummy</mark>, <mark class="fragment" data-fragment-index="4">$object_dummy,</mark> ['CREATE']));
+            </code></pre>
+            <p style="font-size:80%">A dummy is never called, it has no state.</li>
+            <p style="font-size:80%" class="fragment">... just use <code class="php">NULL</code>?</p>
+            <aside class="notes">
+              <ul>
+                <li>Dummy is for "utility" value</li>
+                <li>Assuming this doesn't get called.</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Fake</h3>
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;<mark class="fragment">$file_fake</mark> = new FakeFile($path);
+  $response = new BinaryFileResponse(<mark class="fragment">$file_fake</mark>, 200);
+
+  $response->prepare();
+
+  $this->assertEquals($path, $response->headers->get('X-Accel-Redirect'));
+            </code></pre>
+            <p style="font-size:80%">A concrete class that fakes another concrete class.</li>
+            <aside class="notes">
+              <ul>
+                <li>Fake reduces complexity</li>
+                <li>e.g. you might fake a log class</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Stub</h3>
+            <pre><code class="php" style="width:66em;margin-left:-3em" data-trim data-noescape>
+&nbsp;&nbsp;$authorization_checker = $this->getMock('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface');
+  $authorization_checker-><mark class="fragment">method('isGranted')</mark>-><mark class="fragment">willReturn(true)</mark>;
+
+  $controller = new TestController($authorization_checker);
+
+  $this-><mark class="fragment">assertTrue</mark>($controller->isGranted('foo'));
+            </code></pre>
+            <p style="font-size:80%">Like a dummy, but is called and returns values.</li>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Spy</h3>
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;<mark class="fragment">$user_spy</mark> = $this->prophesize(User::class);
+  $profile = new Profile(<mark class="fragment">$user_spy->reveal()</mark>);
+
+  $profile->getFullName();
+
+  $user_spy->getFirstName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
+  $user_spy->getLastName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
+            </code></pre>
+            <p style="font-size:80%">Like a stub, but captures calls.</li>
+            <aside class="notes">
+              <ul>
+                <li>You can provide values with a spy</li>
+                <li>Must use prophecy</li>
+                <li>But, prophecy can be used for mocks too!</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Mock</h3>
+            <pre><code class="php" data-trim data-noescape>
+&nbsp;&nbsp;$user_mock = $this->getMockBuilder('User')->getMock();
+  $user_mock-><mark class="fragment">expects($this->once())</mark>->method('getFirstName')->willReturn('First');
+  $user_mock-><mark class="fragment">expects($this->once())</mark>->method('getLastName')->willReturn('Last');
+  $profile = new Profile($user_mock);
+
+  <mark class="fragment">$profile->getFullName();</mark>
+            </code></pre>
+            <p style="font-size:80%">Like a spy, but runs assertions on execution of Class Under Test (CUT).</li>
+            <aside class="notes">
+              <ul>
+								<li>Notice that a mock is less clear than a spy or a stub</li>
+								<li>You should avoid mocks</li>
+								<li>We're going to talk about arrange-act-assert later</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>What should you double?</h3>
+            <p class="fragment">It depends if you're doing<br>
+            Sociable or Solitary unit testing.</p>
+            <aside class="notes">
+              <ul>
+                <li>this is the big question and where people teams get confused about types of testing and what a good unit test is</li>
+              </ul>
+            </aside>
+          </section>
+
+<!--
+===============================================================================
+                Part II. Principles: Solitary vs Sociable
+===============================================================================
+-->
+
+          <section>
+            <h2>2. Solitary vs Sociable</h2>
+            <img src="assets/Gateway_Bridge.jpg" style="max-width:65%">
+            <small><em>"Korean War Veterans Memorial Bridge", photo from Wikipedia</em></small>
+            <aside class="notes">
+              <ul>
+                <li>If we tested this bridge in its completely assembled state, it wouldn't be a unit test</li>
+                <li>But, we could test parts of it</li>
+                <li>The more solitary, the more individual / isolated; e.g. a single cable</li>
+                <li>The more sociable, the more units it includes; e.g. a single cable</li>
+                <li>Think how many subroutines would be called during the test</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <div style="float:left;width:46%">
+              <h3>Sociable</h3>
+              <ol>
+                <li class="fragment" data-fragment-index="1">Cross some boundaries</li>
+                <li class="fragment" data-fragment-index="2">One or more concrete classes during test</li>
+              </ol>
+            </div>
+            <div style="float:left;width:8%">
+              <h3>vs</h3>
+            </div>
+            <div style="float:right;width:46%">
+              <h3>Solitary</h3>
+              <ol>
+                <li class="fragment" data-fragment-index="1">Never cross boundaries</li>
+                <li class="fragment" data-fragment-index="2">One concrete class during test</li>
+              </ol>
+            </div>
+            <div style="width:100%;float:left;font-size:80%;margin-top:2em">
+              <p>Source: Jay Fields, "<a href="https://leanpub.com/wewut">Working Effectively With Unit Tests</a>"</p>
+            </div>
+            <aside class="notes">
+              <ul>
+                <li>Sociable it might be OK to boot the kernel</li>
+                <li>Solitary it wouldn't be OK to boot the kernel</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>What is a boundary?</h3>
+            <blockquote class="fragment">
+              A boundary is "a database, a queue,<br>
+              another system, or even an ordinary class<br>
+              if that class is 'outside' the area your trying<br>
+              to work with or are responsible for"
+              <p class="attribution">&mdash; William E. Caputo, <a href="http://www.williamcaputo.com/archives/000019.html">www.williamcaputo.com</a></p>
+            </blockquote>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>What does "one concrete class" mean?</h3>
+            <ul>
+              <li class="fragment">Use a double for dependencies.</li>
+              <li class="fragment">Collaborators that return objects<br>
+              should return doubles.</li>
+              <li class="fragment">No statics.</li>
+              <li class="fragment"><em>Caveat: value objects don't count.</em></li>
+            </ul>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <img src="assets/not-sure-if-head-is-exploding.jpg">
+            <aside class="notes">
+              <ul>
+                <li>These definitions are a lot, but critical to understanding</li>
+                <li>Critical for our industry to move forward in this area</li>
+                <li>Let's recap</li>
+              </ul>
+            </aside>
+          </section>
+
+<!--
+@todo insert example of multiple concrete classes
+-->
+
+          <section>
+            <h3>Recap: Principles of Unit Testing</h3>
+            <ul>
+              <li class="fragment">A unit test verifies a unit's correctness against a specification.</li>
+              <li class="fragment">Use Test Doubles for indirect inputs or outputs:
+                <ul>
+                  <li>Dummy</li>
+                  <li>Fake</li>
+                  <li>Stub</li>
+                  <li>Spy</li>
+                  <li>Mock</li>
+                </ul>
+              </li>
+              <li class="fragment">A boundary is an indirect input or output.</li>
+              <li class="fragment">Sociable Unit Testing:
+                <ul>
+                  <li>Cross some boundaries</li>
+                  <li>One or more concrete classes during test</li>
+                </ul>
+              </li>
+              <li class="fragment">Solitary Unit Testing:
+                <ul>
+                  <li>Never cross boundaries</li>
+                  <li>One concrete class during test</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </section>
+
+<!--
+===============================================================================
+                         Part IV. Test Smells
+===============================================================================
+-->
+
+        <section>
+
+          <section>
+            <h2>IV. Test Smells</h2>
+            <aside class="notes">
+              <ul>
+                <li>We won't cover all of them</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <img src="assets/baby-diaper.jpg" style="width:50%;border:none" />
+            <blockquote>"If it stinks, change it."</blockquote>
+            <p style="font-size:60%" class="attribution">&mdash; Grandma Beck, discussing child-rearing philosophy, "<a href="http://martinfowler.com/books/refactoring.html">Refactoring</a>"</p>
+            <aside class="notes">
+              <ul>
+                <li>Point: get rid of the smell</li>
+                <li>These would save time in code review</li>
+                <li>Make it easier to extend/maintain</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Examples</h3>
+            <dl>
+              <dt>Obscure Test</dt>
+                <dd>What is this test doing!?</dd>
+              <dt>Fragile Test</dt>
+                <dd>I didn't change this class!? How is it now erroring?</dd>
+              <dt>Test Code Duplication</dt>
+                <dd>Why am I repeating myself so much?</dd>
+              <dt>High Test Maintenance Cost</dt>
+                <dd>I spend more time changing tests than code!!!</dd>
+              <dt>Assertion Roulette</dt>
+                <dd>Which assertion failed? I have no idea.</dd>
+            </dl>
+          </section>
+
+          <section>
+            <h3>Solutions</h3>
+            <dl>
+              <dt>Object Mother</dt>
+                <dd><code>getInactiveUser()</code></dd>
+              <dt>Data Builder</dt>
+                <dd><code>isInactive()->hasPosts(10)->build()</code></dd>
+              <dt>Custom Assertion</dt>
+                <dd><code>assertValidLink($link)</code></dd>
+              <dt>Expect Literals</dt>
+                <dd><code>$this->assertEquals('<a href="/" class="foo bar">text</a>', $output);</code></dd>
+              <dt>One assertion per test</dt>
+                <dd>Avoid multiple asserts</dd>
+              <dt>Refactor</dt>
+                <dd>Eliminate side effects and shared state</dd>
+              <dt>Don't unit test</dt>
+                <dd>Unit testing isn't the best strategy in all cases</dd>
+            </dl>
+            </code></pre>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h4>Try: Arrange-Act-Assert</h4>
+            <dl>
+              <dt>Arrange</dt>
+                <dd>Arrange all necessary preconditions and inputs.</dd>
+              <dt>Act</dt>
+                <dd>Act on the object or method under test.</dd>
+              <dt>Assert</dt>
+                <dd>Assert that the expected results have occurred.</dd>
+            </dl>
+            <div style="width:100%;float:left;font-size:80%;margin-top:2em">
+              <p>Source: Cunningham Ward, <a href="http://c2.com/cgi/wiki?ArrangeActAssert">c2.com</a></p>
+            </div>
+            <aside class="notes">
+              <ul>
+                <li>This is the single most effective way to address most test smells</li>
+                <li>It will help you see when to refactor</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h4>Try: Arrange-Act-Assert</h4>
+            <pre><code class="php">
+  class IncrementTest extends TestCase {
+    public function testIncrement() {
+      // Arrange.
+      $product = new Product();
+      $product->favorite_count = 1;
+
+      // Act.
+      $result = increment($product);
+
+      // Assert.
+      $this->assertEquals(2, $result->favorite_count);
+    }
+  }
+            </code></pre>
+            <p><i>This suggests mocks are obscure and should be avoided!</i></p>
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+        </section>
+
+<!--
+===============================================================================
+               Part IV. Motivations
+===============================================================================
+-->
+
+        <section>
+
+          <section>
+            <h2>IV. Motivations</h2>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h3>Unit testing provides low level of benefit.</h3>
+            <img src="assets/congo-bridge.jpg" style="max-width:70%">
+            <small><em>Photo of wooden bridge in eastern Congo, photo courteousy of Lori Babcock.</em></small>
+            <aside class="notes">
+              <ul>
+                <li>Find a good tree, slice it up, bind it with rope</li>
+                <li>You don't want to follow that process for the Bay Bridge, but sometimes its OK not to</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3 style="width:21em;text-align:center">Unit testing provides high level of benefit.</h3>
+            <p>
+              <img src="assets/chicago-bridge.jpg" style="max-width:70%">
+              <small><em>Photo of two-level bascule bridge in Chicago, IL, photo courteousy of Lori Babcock.</em></small>
+            </p>
+            <aside class="notes">
+              <ul>
+                <li>One million people use CTA every day.</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>When does unit testing have HIGH value?</h3>
+            <ul>
+              <li>Rule of 3 (at least 3 classes will use this)</li>
+              <li>Writing a library, e.g. composer dependency</li>
+              <li>Before refactoring legacy code</li>
+              <li>High amount of necessary complexity</li>
+              <li>Exploratory work or to assist development, e.g. TDD</li>
+              <li>There is high cost to even minor bugs</li>
+              <li>You're writing code in a framework, e.g. Symfony</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>When does unit testing have LOW value?</h3>
+            <ul>
+              <li>If you're writing "glue" code (e.g. most Drupal projects)</li>
+              <li>Maintenance cost is significantly higher than the cost of a bug</li>
+              <li>You're writing code in a platform, e.g. Drupal</li>
+              <li>There is a more valuable form of testing with lower effort</li>
+            </ul>
+            <aside class="notes">
+              
+            </aside>
+          </section>
+
+          <section>
+            <h3>Solitary or sociable?</h3>
+            <p style="font-size:75%"><i>See also unit vs kernel tests.</i></p>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h3>Sociable unit testing...</h3>
+            <ul>
+              <li>hard to debug</li>
+              <li>requires lots of set up and tear down</li>
+              <li>requires lots of test doubles</li>
+            </ul>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h3>Solitary unit testing...</h3>
+            <ul>
+              <li>allows higher code coverage</li>
+              <li>promotes decoupling</li>
+              <li>executes faster</li>
+              <li>enables better software design</li>
+            </ul>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <blockquote>
+              "It should not be underestimated how much easier these functions are to test than their state-filled counterparts."
+              <p style="font-size:70%" class="attribution">&mdash; Simon Honeywell, "<a href="http://www.functionalphp.com/">Functional Programming in PHP</a>"</p>
+            </blockquote>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h3>Solitary unit testing forces<br>you to write good code.</h3>
+          </section>
+
+          <section>
+            <h3 class="fragment" style="font-size:180%;text-align:left">Unless someone like you<br>
+            cares a whole awful lot,<br>
+                  nothing is going to<br>
+                    get better, it's not<br></h3>
+            <img src="assets/the-lorax-saturated.png" style="background:none;border:none;box-shadow:none;float:right">
+            <!--
+            <img src="assets/the-lorax-similar.png" style="background:none;border:none;box-shadow:none;float:right">
+            -->
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <img src="assets/issue-2799479-kyle-einecker-this-is-why-drupal-8-is-good.png" style="border:none;width:120%">
+            <img src="assets/issue-2799479-needs-work-because-tests.png" style="border:none;width:120%" class="fragment">
+            <aside class="notes">
+              <ul>
+              </ul>
+            </aside>
+          </section>
+
+        </section>
+
+<!--
+===============================================================================
+                               Conclusion
+===============================================================================
+-->
+
+        <section>
+
+          <section>
+            <h3>Ok, but where do I start?</h3>
+          </section>
+
+          <section>
+            <img src="assets/drupal-8.5-phpmetrics.png" style="border:none;width:100%">
+            <small><em>Drupal 8.5 code metrics generated by <a href="http://www.phpmetrics.org/">phpmetrics.org</a>, see <a href="http://josephdpurcell.github.io/code-climate-and-drupal/phpmetrics/reports/drupal/drupal/8.5.x-9792ce922070ca1fdf944ce69413b8e06139e283.html">results</a>.</em></small>
+            <aside class="notes">
+              <ul>
+                <li>Size = Volume</li>
+                <li>cyclo b/c indicator that you could be doing too much</li>
+                <li>afferent b/c a class that knows to much</li>
+                <li>efferent is usually ok</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <img src="assets/drupal-8.5-phpmetrics-annotated.png" style="border:none;background:transparent;">
+            <aside class="notes">
+              <ul>
+                <li>high cyclo: break down into smaller AND good solitary unit tests</li>
+                <li>high afferent: add abstractions AND good sociable tests</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3 style="font-size:120%;text-align:left">Why is Symfony so successful for re-use?</h3>
+            <ul>
+              <li class="fragment">It's good object oriented code.</li>
+              <li class="fragment">No surprise: the tests are mostly (entirely?) solitary.</li>
+            </ul>
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h2 style="font-size:140%">Remember the Principles of Unit Testing:</h2>
+
+            <p>&nbsp;</p>
+
+            <div style="width:100%">
+              <div style="float:left;width:44%">test doubles</div>
+              <div style="float:right;width:54%">solitary vs sociable</div>
+            </div>
+
+            <div>
+              <img src="assets/janeshia-adams-ginyard-black-panther-cbc.jpg" style="border:none;width:44%;float:left">
+              <img src="assets/Gateway_Bridge.jpg" style="border:none;width:54%;float:left;margin-left:2%">
+            </div>
+
+          </section>
+
+        </section>
+
+<!--
+===============================================================================
+                          Thank You!
+===============================================================================
+-->
+
+        <section>
+
+          <section>
+            <h2>Thank you!</h2>
+            <br>
+            <p>Slides are available:<br><a href="https://github.com/josephdpurcell/principles-of-unit-testing">github.com/josephdpurcell/principles-of-unit-testing</a></p>
+            <p>Let's talk! @josephdpurcell</p>
+          </section>
+
+          <section>
+            <h3>References</h3>
+
+            <ul style="font-size:80%">
+              <li>"<a href="http://martinfowler.com/bliki/UnitTest.html">UnitTest</a>", Martin Fowler</li>
+              <li>"<a href="https://www.popsci.com/scitech/article/2008-05/indestructable-bridge">The Indestructible Bridge</a>", Popular Magazine</li>
+              <li>"<a href="https://www.youtube.com/watch?v=YmGcaO33Kl4">Steel Beam Test</a>", YouTube</li>
+              <li>"<a href="http://marvelcinematicuniverse.wikia.com/wiki/File:Okoye_Profile_Final.JPG">Okoye Profile Final.JPG</a>", Fandom</li>
+              <li>"<a href="http://www.cbc.ca/news/canada/calgary/calgary-janeshia-adams-ginyard-black-panther-1.4587238">Okoye Profile Final.JPG</a>", Fandom</li>
+              <li>"<a href="http://www.cbc.ca/news/canada/calgary/calgary-janeshia-adams-ginyard-black-panther-1.4587238">Black Panther actress imparts inspirational message to Calgary youth</a>", CBC News</li>
+              <li>"<a href="https://leanpub.com/wewut">Working Effectively With Unit Tests</a>", Jay Fields</li>
+              <li>"<a href="http://www.williamcaputo.com/archives/000019.html">TDD Pattern: Do not cross boundaries</a>", William E. Caputo</li>
+              <li>"<a href="http://martinfowler.com/books/refactoring.html">Refactoring</a>", Martin Fowler</li>
+              <li>"<a href="http://c2.com/cgi/wiki?ArrangeActAssert">Arrange Act Assert</a>", Cunningham Ward</li>
+              <li>"<a href="http://www.functionalphp.com/">Functional Programming in PHP</a>", Simon Honeywell</li>
+              <li>Drupal 8.5 code metrics generated by <a href="http://www.phpmetrics.org/">phpmetrics.org</a>, see <a href="http://josephdpurcell.github.io/code-climate-and-drupal/phpmetrics/reports/drupal/drupal/8.5.x-9792ce922070ca1fdf944ce69413b8e06139e283.html">results</a>.</li>
+            </ul>
+
+            <aside class="notes">
+            </aside>
+          </section>
+
+          <section>
+            <h3>Further Reading</h3>
+
+            <ul style="font-size:60%">
+              <li>"<a href="https://www.youtube.com/watch?v=j6Gv4wh9mIQ">This Black Panther Stuntwoman Is a Real-Life Warrior</a>", YouTube</a>
+              <li>"<a href="http://www.objectmentor.com/resources/books.html">Clean Code</a>", Robert C. Martin</li>
+              <li>"<a href="http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod">The Principles of OOD</a>", Robert C. Martin</li>
+              <li>"<a href="https://mike-bland.com/2012/08/16/oop-revisited.html">Object-Oriented Programming Revisited</a>", Mike Bland</li>
+              <li>"<a href="https://www.amazon.com/dp/0131177052">Working Effectively with Legacy Code</a>", Michael C. Feathers</li>
+              <li>"<a href="http://martinfowler.com/articles/testing-culture.html">Goto Fail, Heartbleed, and Unit Testing Culture</a>", Martin Fowler</li>
+              <li>"<a href="http://www.dwheeler.com/essays/heartbleed.html">How to Prevent the next Heartbleed</a>", David A. Wheeler</li>
+              <li>"<a href="http://www.rbcs-us.com/documents/Why-Most-Unit-Testing-is-Waste.pdf">Why Most Unit Testing is Waste</a>", James O. Coplien</li>
+              <li>"<a href="http://martinfowler.com/bliki/ObjectMother.html">Object Mother</a>", Martin Fowler</li>
+              <li>"<a href="http://www.natpryce.com/articles/000714.html">Test Data Builders: an alternative to the Object Mother pattern</a>", Nat Pryce</li>
+              <li>"<a href="http://martinfowler.com/articles/mocksArentStubs.html">Mocks Aren't Stubs</a>", Martin Fowler</li>
+              <li>"<a href="http://googletesting.blogspot.com/search/label/TotT">Google testing blog</a>"</li>
+              <li>"<a href="http://deliberate-software.com/dont-mock-concrete-classes/">Don't Mock Concrete Classes</a>", Steve Shogren</li>
+              <li>"<a href="http://xunitpatterns.com/">XUnit Test Patterns</a>", George Mezaros</li>
+              <li>"<a href="http://motherboard.vice.com/read/how-is-critical-life-or-death-software-tested">How Is Critical 'Life or Death' Software Tested?</a>", Michael Byrne</li>
+              <li>"<a href="http://www.johndcook.com/blog/2010/05/18/pure-functions-have-side-effects/">Pure functions have side-effects</a>", John D. Cook</li>
+              <li>"<a href="http://blog.stevensanderson.com/2009/08/24/writing-great-unit-tests-best-and-worst-practises/">Writing Great Unit Tests: Best and Worst Practices</a>", Steve Sanderson</li>
+              <li>"<a href="http://noss.github.io/2009/02/25/writing-unit-tests-is-reinventing-functional-programming-in-non-functional-languages.html">Writing unit tests is reinventing functional programming in non-functional languages</a>", Christian S.</li>
+            </ul>
+
+            <aside class="notes">
+            </aside>
+          </section>
+
+        </section>
+
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        history: true,
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+    <aside class="db-logo-footer">
+      <a href="http://www.dbridgesolutions.com/">
+        <img src="media/images/db.png">
+      </a>
+    </aside>
+  </body>
+</html>
