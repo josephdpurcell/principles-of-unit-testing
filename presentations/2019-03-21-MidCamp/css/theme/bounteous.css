@@ -1,33 +1,33 @@
 /**
- * DBridge theme for reveal.js.
+ * Bounteous theme for reveal.js.
  */
 @import url(https://fonts.googleapis.com/css?family=Montserrat:700);
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic);
-aside.db-logo-footer {
+aside.logo-footer {
   position: fixed;
-  bottom: 10px;
+  bottom: 15px;
   left: 20px;
-  width: 100px;
-  height: 100px; }
-  aside.db-logo-footer img {
+  width: 70px;
+  height: 70px; }
+  aside.logo-footer img {
     height: 100%; }
 
 /*********************************************
  * GLOBAL STYLES
  *********************************************/
 body {
-  background: #2E2E2E;
-  background-color: #2E2E2E; }
+  background: #F5F5F9;
+  background-color: #F5F5F9; }
 
 .reveal {
-  font-family: "Open Sans", sans-serif;
+  font-family: "Nunito Sans",sans-serif;
   font-size: 30px;
   font-weight: normal;
-  color: #E0E0E0; }
+  color: ##162208; }
 
 ::selection {
   color: #fff;
-  background: #F2AE7D;
+  background: #196bff;
   text-shadow: none; }
 
 .reveal .slides > section,
@@ -45,7 +45,7 @@ body {
 .reveal h5,
 .reveal h6 {
   margin: 0 0 20px 0;
-  color: #e97724;
+  color: #0229a5;
   font-family: "Montserrat", Impact, sans-serif;
   font-weight: normal;
   line-height: 1.2;
@@ -210,14 +210,13 @@ body {
  * LINKS
  *********************************************/
 .reveal a {
-  color: #F2AE7D;
+  color: #196bff;
   text-decoration: none;
   -webkit-transition: color .15s ease;
   -moz-transition: color .15s ease;
   transition: color .15s ease; }
 
 .reveal a:hover {
-  color: #fbe8da;
   text-shadow: none;
   border: none; }
 
@@ -231,7 +230,7 @@ body {
 .reveal section img {
   margin: 15px 0px;
   background: rgba(255, 255, 255, 0.12);
-  border: 4px solid #E0E0E0;
+  border: 4px solid #162208;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); }
 
 .reveal section img.plain {
@@ -245,7 +244,7 @@ body {
 
 .reveal a:hover img {
   background: rgba(255, 255, 255, 0.2);
-  border-color: #F2AE7D;
+  border-color: #196bff;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.55); }
 
 /*********************************************
@@ -253,19 +252,19 @@ body {
  *********************************************/
 .reveal .controls .navigate-left,
 .reveal .controls .navigate-left.enabled {
-  border-right-color: #F2AE7D; }
+  border-right-color: #196bff; }
 
 .reveal .controls .navigate-right,
 .reveal .controls .navigate-right.enabled {
-  border-left-color: #F2AE7D; }
+  border-left-color: #196bff; }
 
 .reveal .controls .navigate-up,
 .reveal .controls .navigate-up.enabled {
-  border-bottom-color: #F2AE7D; }
+  border-bottom-color: #196bff; }
 
 .reveal .controls .navigate-down,
 .reveal .controls .navigate-down.enabled {
-  border-top-color: #F2AE7D; }
+  border-top-color: #196bff; }
 
 .reveal .controls .navigate-left.enabled:hover {
   border-right-color: #fbe8da; }
@@ -286,7 +285,7 @@ body {
   background: rgba(0, 0, 0, 0.2); }
 
 .reveal .progress span {
-  background: #F2AE7D;
+  background: #196bff;
   -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
   -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
   transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985); }
