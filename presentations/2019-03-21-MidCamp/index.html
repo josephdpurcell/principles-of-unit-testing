@@ -485,8 +485,8 @@ cut out test smells: 64
           </section>
 
           <section>
-            <h3>Example 1</h3>
-            <b>A Unit with an Indirect Input</b>
+            <h3>Indirect Input</h3>
+            <div style="text-align:left"><b>Unit</b></div>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;function get_product($id) {
     $product_storage = \Drupal::service('entity.manager')->getStorage('product');
@@ -494,7 +494,7 @@ cut out test smells: 64
   }
             </code></pre>
 
-            <b>A Unit Test</b>
+            <div style="text-align:left"><b>Unit Test</b></div>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;public function testGetProductRetrievesId() {
     $product_id = 1;
@@ -504,7 +504,7 @@ cut out test smells: 64
     $this->assertEquals($product_id, $result->id());
   }
             </code></pre>
-            <b class="fragment">Exception: no database to read from!</b>
+            <div style="text-align:left"><b class="fragment">Exception: no database to read from!</b></div>
             <aside class="notes">
               <ul>
                 <li>Will this test fail?</li>
@@ -514,8 +514,8 @@ cut out test smells: 64
           </section>
 
           <section>
-            <h3>Example 2</h3>
-            <b>A Unit with a Side Effect</b>
+            <h3>Indirect Output</h3>
+            <div style="text-align:left"><b>Unit</b></div>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;function increment_product_favorite_amount(Product $product) {
     $product->favorite_count = $product->favorite_amount + 1;
@@ -524,7 +524,7 @@ cut out test smells: 64
   }
             </code></pre>
 
-            <b>A Unit Test</b>
+            <div style="text-align:left"><b>Unit Test</b></div>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;public function testIncrementProductFavoriteAmountAddsOne() {
     $product = new Product();
@@ -535,7 +535,7 @@ cut out test smells: 64
     $this->assertEquals(2, $result->favorite_count);
   }
             </code></pre>
-            <b class="fragment">Exception: no database to write to!</b>
+            <div style="text-align:left"><b class="fragment">Exception: no database to write to!</b></div>
             <aside class="notes">
               <ul>
                 <li>Will this test fail?</li>
@@ -1541,12 +1541,12 @@ interface MaintenanceModePageInterface {
 
           <section>
             <h3>Sociable unit testing...</h3>
+            <div class="fragment"><img src="assets/unit-tests-vs-integration-tests.png" style="max-width:40%"></div>
             <ul>
               <li class="fragment">hard to debug</li>
               <li class="fragment">requires lots of set up and tear down</li>
               <li class="fragment">requires lots of test doubles</li>
             </ul>
-            <p>&nbsp;</p>
             <p class="fragment"><i>Have you had to write a KernelTest?</i></p>
             <aside class="notes">
             </aside>
