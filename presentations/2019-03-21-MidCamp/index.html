@@ -99,6 +99,23 @@ Outline:
     d. Test Code Duplication
     e. High Test Maintenance Cost
   5. Motivations
+
+
+Slide numbers:
+0/6 - intro
+1/10 - definition
+2/17 - principles
+3/16 - example
+4/17 - test smells
+5/11 - motivations
+6/4 - where to start
+
+81 slides
+
+cut out test smells: 64
+  AND cut out example 2: 54
+  OR cut ouot example 1 instead: 58
+
 -->
 
         <!-- SECTION 1: Intro -->
@@ -336,9 +353,9 @@ Outline:
 
   class IncrementTest extends TestCase {
     public function testIncrementAddsOne() {
-      $result = increment(1);
+      $result = <mark class="fragment">increment</mark>(1);
 
-      <mark class="fragment">$this->assertEquals(2, $result);</mark>
+      $this-><mark class="fragment">assertEquals</mark>(2, $result);
     }
   }
             </code></pre>
@@ -597,7 +614,7 @@ Outline:
 
   $controller = new TestController($authorization_checker);
 
-  $this-><mark class="fragment">assertTrue</mark>($controller->isGranted('foo'));
+  $this-assertTrue($controller->isGranted('foo'));
             </code></pre>
             <aside class="notes">
               <ul>
@@ -614,8 +631,8 @@ Outline:
 
   $profile->getFullName();
 
-  $user_spy->getFirstName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
-  $user_spy->getLastName()-><mark class="fragment">shouldHaveBeenCalled()</mark>;
+  $user_spy->getFirstName()->shouldHaveBeenCalled();
+  $user_spy->getLastName()->shouldHaveBeenCalled();
             </code></pre>
             <aside class="notes">
               <ul>
@@ -631,11 +648,11 @@ Outline:
             <p>Test that full name calls first and last name</p>
             <pre><code class="php" data-trim data-noescape>
 &nbsp;&nbsp;$user_mock = $this->getMockBuilder('User')->getMock();
-  $user_mock-><mark class="fragment">expects($this->once())</mark>->method('getFirstName')->willReturn('First');
-  $user_mock-><mark class="fragment">expects($this->once())</mark>->method('getLastName')->willReturn('Last');
+  $user_mock-><mark class="fragment">expects($this->once())</mark><mark class="fragment">->method('getFirstName')</mark><mark class="fragment">->willReturn('First')</mark>;
+  $user_mock-><mark class="fragment">expects($this->once())->method('getLastName')->willReturn('Last')</mark>;
   $profile = new Profile($user_mock);
 
-  <mark class="fragment">$profile->getFullName();</mark>
+  $profile->getFullName();
             </code></pre>
             <aside class="notes">
               <ul>
@@ -841,6 +858,7 @@ Outline:
           </section>
 
           <section>
+            <p>Test that loading a batch starts a session</p>
             <pre><code data-trim data-noescape class="php">
 &nbsp;&nbsp;public function testLoadStartsSession() {
     // Handle the session start side effect.
@@ -1061,17 +1079,6 @@ interface MaintenanceModePageInterface {
 
           <section>
             <h3>Now we can test!</h3>
-            <span class="fragment" style="text-align:left">
-              <h3 style="font-size:1.25em">And look at the improvements:</h3>
-              <ul style="margin-left:-4em">
-                <li class="fragment">Now our class does one thing</li>
-                <li class="fragment">Which means we can test one thing</li>
-                <li class="fragment">The class now has 3 dependencies instead of 7</li>
-                <li class="fragment">It's more readable</li>
-                <li class="fragment">It's easier to test</li>
-                <li class="fragment">It's abstracted so non-HTML responses can be returned</li>
-              </ul>
-            </span>
           </section>
 
           <section>
@@ -1111,6 +1118,20 @@ interface MaintenanceModePageInterface {
               <ul>
               </ul>
             </aside>
+          </section>
+
+          <section>
+            <h3>Look at the improvements!</h3>
+            <span style="text-align:left">
+              <ul style="margin-left:-4em">
+                <li class="fragment">Now our class does one thing</li>
+                <li class="fragment">Which means we can test one thing</li>
+                <li class="fragment">The class now has 3 dependencies instead of 7</li>
+                <li class="fragment">It's more readable</li>
+                <li class="fragment">It's easier to test</li>
+                <li class="fragment">It's abstracted so non-HTML responses can be returned</li>
+              </ul>
+            </span>
           </section>
 
           <section>
